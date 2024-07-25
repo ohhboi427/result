@@ -1,6 +1,7 @@
 #pragma once
 
 #include <concepts>
+#include <format>
 #include <type_traits>
 #include <utility>
 
@@ -230,6 +231,28 @@ namespace std
 			}
 
 			return hash<E>{}(result.err());
+		}
+	};
+
+	template<typename T, typename E, typename CharT>
+		requires std::conjunction_v<std::is_default_constructible<formatter<T, CharT>>, std::is_default_constructible<formatter<E, CharT>>>
+	struct formatter<std2::result<T, E>, CharT>
+	{
+		template<typename FormatContext>
+		auto format(const std2::result<T, E>& result, FormatContext& context) const noexcept -> typename FormatContext::iterator
+		{
+			if(result.is_ok())
+			{
+				return std::format_to(context.out(), "ok{{{}}}", result.ok());
+			}
+
+			return std::format_to(context.out(), "err{{{}}}", result.err());
+		}
+
+		template<typename ParseContext>
+		constexpr auto parse(ParseContext& context) noexcept -> typename ParseContext::iterator
+		{
+			return context.end();
 		}
 	};
 }
