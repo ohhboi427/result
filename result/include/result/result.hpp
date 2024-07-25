@@ -131,6 +131,24 @@ namespace std2
 			return std::move(m_ok);
 		}
 
+		template<std::convertible_to<T> U>
+			requires std::negation_v<std::is_void<T>>
+		[[nodiscard]] constexpr auto ok_or(U&& def) const& noexcept -> T
+		{
+			return m_is_ok
+				? m_ok
+				: std::forward<U>(def);
+		}
+
+		template<std::convertible_to<T> U>
+			requires std::negation_v<std::is_void<T>>
+		[[nodiscard]] constexpr auto ok_or(U&& def) && noexcept -> T
+		{
+			return m_is_ok
+				? std::move(m_ok)
+				: std::forward<U>(def);
+		}
+
 		template<typename = void>
 			requires std::negation_v<std::is_void<E>>
 		[[nodiscard]] constexpr auto err() & noexcept -> result_storage<E>&
@@ -157,6 +175,24 @@ namespace std2
 		[[nodiscard]] constexpr auto err() const&& noexcept -> const result_storage<E>&&
 		{
 			return std::move(m_err);
+		}
+
+		template<std::convertible_to<E> F>
+			requires std::negation_v<std::is_void<E>>
+		[[nodiscard]] constexpr auto err_or(F&& def) const& noexcept -> E
+		{
+			return !m_is_ok
+				? m_err
+				: std::forward<F>(def);
+		}
+
+		template<std::convertible_to<E> F>
+			requires std::negation_v<std::is_void<E>>
+		[[nodiscard]] constexpr auto err_or(F&& def) && noexcept -> E
+		{
+			return !m_is_ok
+				? std::move(m_err)
+				: std::forward<F>(def);
 		}
 
 	private:
