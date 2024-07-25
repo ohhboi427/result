@@ -215,3 +215,21 @@ namespace std2
 		bool m_is_ok;
 	};
 }
+
+namespace std
+{
+	template<typename T, typename E>
+		requires std::conjunction_v<std::is_default_constructible<hash<T>>, std::is_default_constructible<hash<E>>>
+	struct hash<std2::result<T, E>>
+	{
+		[[nodiscard]] constexpr auto operator()(const std2::result<T, E>& result) const noexcept -> size_t
+		{
+			if(result.is_ok())
+			{
+				return hash<T>{}(result.ok());
+			}
+
+			return hash<E>{}(result.err());
+		}
+	};
+}
