@@ -88,6 +88,21 @@ namespace std2
 		auto operator=(const result&) -> result& = delete;
 		auto operator=(result&&) noexcept -> result& = delete;
 
+		[[nodiscard]] constexpr operator bool() const noexcept
+		{
+			return m_is_ok;
+		}
+
+		[[nodiscard]] constexpr auto is_ok() const noexcept -> bool
+		{
+			return m_is_ok;
+		}
+
+		[[nodiscard]] constexpr auto is_err() const noexcept -> bool
+		{
+			return !m_is_ok;
+		}
+
 	private:
 		union
 		{
