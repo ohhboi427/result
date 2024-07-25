@@ -4,5 +4,5 @@
 
 auto main() -> int
 {
-	std2::result<int, std::string> result = std2::err("test");
+	std2::result<int, void> result = std2::ok(10);
 }

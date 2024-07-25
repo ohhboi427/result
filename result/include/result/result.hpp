@@ -6,10 +6,13 @@
 
 namespace std2
 {
+	template<typename T>
+	using result_storage = std::conditional_t<std::is_void_v<T>, uint8_t, T>;
+
 	template<typename T, bool IsOk>
 	struct result_value
 	{
-		T value;
+		result_storage<T> value;
 	};
 
 	template<typename T>
@@ -18,16 +21,32 @@ namespace std2
 	template<typename E>
 	using err_value = result_value<E, false>;
 
+	template<typename T = void>
+		requires std::is_void_v<T>
+	[[nodiscard]] constexpr auto ok(...) noexcept -> ok_value<void>
+	{
+		return ok_value<void>{};
+	}
+
 	template<typename T>
+		requires std::negation_v<std::is_void<T>>
 	[[nodiscard]] constexpr auto ok(T&& value) noexcept -> ok_value<std::decay_t<std::remove_reference_t<T>>>
 	{
-		return ok_value{ std::forward<T>(value) };
+		return ok_value<std::decay_t<std::remove_reference_t<T>>>{ std::forward<T>(value) };
+	}
+
+	template<typename E = void>
+		requires std::is_void_v<E>
+	[[nodiscard]] constexpr auto err(...) noexcept -> err_value<void>
+	{
+		return err_value<void>{};
 	}
 
 	template<typename E>
+		requires std::negation_v<std::is_void<E>>
 	[[nodiscard]] constexpr auto err(E&& value) noexcept -> err_value<std::decay_t<std::remove_reference_t<E>>>
 	{
-		return err_value{ std::forward<E>(value) };
+		return err_value<std::decay_t<std::remove_reference_t<E>>>{ std::forward<E>(value) };
 	}
 
 	template<typename T, typename E>
@@ -51,19 +70,19 @@ namespace std2
 		{
 			if(m_is_ok)
 			{
-				m_ok.~T();
+				m_ok.~decltype(m_ok)();
 			}
 			else
 			{
-				m_err.~E();
+				m_err.~decltype(m_err)();
 			}
 		}
 
 	private:
 		union
 		{
-			T m_ok;
-			E m_err;
+			result_storage<T> m_ok;
+			result_storage<E> m_err;
 		};
 		bool m_is_ok;
 	};
