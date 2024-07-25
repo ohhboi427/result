@@ -70,6 +70,9 @@ namespace std2
 			: m_err(std::move(err.value)), m_is_ok{ false }
 		{}
 
+		result(const result&) = delete;
+		result(result&&) noexcept = delete;
+
 		constexpr ~result() noexcept(std::conjunction_v<std::is_nothrow_destructible<T>, std::is_nothrow_destructible<E>>)
 		{
 			if(m_is_ok)
@@ -81,6 +84,9 @@ namespace std2
 				m_err.~decltype(m_err)();
 			}
 		}
+
+		auto operator=(const result&) -> result& = delete;
+		auto operator=(result&&) noexcept -> result& = delete;
 
 	private:
 		union
