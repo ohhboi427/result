@@ -30,7 +30,9 @@ namespace std2
 
 	template<typename T>
 		requires std::negation_v<std::is_void<T>>
-	[[nodiscard]] constexpr auto ok(T&& value) noexcept -> ok_value<std::decay_t<std::remove_reference_t<T>>>
+	[[nodiscard]] constexpr auto ok(T&& value)
+		noexcept(std::is_nothrow_constructible_v<ok_value<std::decay_t<std::remove_reference_t<T>>>, T&&>)
+		-> ok_value<std::decay_t<std::remove_reference_t<T>>>
 	{
 		return ok_value<std::decay_t<std::remove_reference_t<T>>>{ std::forward<T>(value) };
 	}
@@ -44,7 +46,9 @@ namespace std2
 
 	template<typename E>
 		requires std::negation_v<std::is_void<E>>
-	[[nodiscard]] constexpr auto err(E&& value) noexcept -> err_value<std::decay_t<std::remove_reference_t<E>>>
+	[[nodiscard]] constexpr auto err(E&& value)
+		noexcept(std::is_nothrow_constructible_v<err_value<std::decay_t<std::remove_reference_t<E>>>, E&&>)
+		-> err_value<std::decay_t<std::remove_reference_t<E>>>
 	{
 		return err_value<std::decay_t<std::remove_reference_t<E>>>{ std::forward<E>(value) };
 	}
@@ -54,7 +58,7 @@ namespace std2
 	{
 	public:
 		using ok_type = T;
-		using ere_type = E;
+		using err_type = E;
 
 		template<std::convertible_to<T> U>
 		constexpr result(ok_value<U>&& ok) noexcept(std::is_nothrow_constructible_v<T, std::add_rvalue_reference_t<U>>)
