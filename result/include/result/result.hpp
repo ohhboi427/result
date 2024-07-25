@@ -103,6 +103,62 @@ namespace std2
 			return !m_is_ok;
 		}
 
+		template<typename = void>
+			requires std::negation_v<std::is_void<T>>
+		[[nodiscard]] constexpr auto ok() & noexcept -> result_storage<T>&
+		{
+			return m_ok;
+		}
+
+		template<typename = void>
+			requires std::negation_v<std::is_void<T>>
+		[[nodiscard]] constexpr auto ok() const& noexcept -> const result_storage<T>&
+		{
+			return m_ok;
+		}
+
+		template<typename = void>
+			requires std::negation_v<std::is_void<T>>
+		[[nodiscard]] constexpr auto ok() && noexcept -> result_storage<T>&&
+		{
+			return std::move(m_ok);
+		}
+
+		template<typename = void>
+			requires std::negation_v<std::is_void<T>>
+		[[nodiscard]] constexpr auto ok() const&& noexcept -> const result_storage<T>&&
+		{
+			return std::move(m_ok);
+		}
+
+		template<typename = void>
+			requires std::negation_v<std::is_void<E>>
+		[[nodiscard]] constexpr auto err() & noexcept -> result_storage<E>&
+		{
+			return m_err;
+		}
+
+		template<typename = void>
+			requires std::negation_v<std::is_void<E>>
+		[[nodiscard]] constexpr auto err() const& noexcept -> const result_storage<E>&
+		{
+			return m_err;
+		}
+
+		template<typename = void>
+			requires std::negation_v<std::is_void<E>>
+		[[nodiscard]] constexpr auto err() && noexcept -> result_storage<E>&&
+		{
+			return std::move(m_err);
+		}
+
+		template<typename = void>
+			requires std::negation_v<std::is_void<E>>
+		[[nodiscard]] constexpr auto err() const&& noexcept -> const result_storage<E>&&
+		{
+			return std::move(m_err);
+		}
+
 	private:
 		union
 		{
