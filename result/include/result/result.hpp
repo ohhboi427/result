@@ -61,19 +61,22 @@ namespace std2
 		using err_type = E;
 
 		template<std::convertible_to<T> U>
-		constexpr result(ok_value<U>&& ok) noexcept(std::is_nothrow_constructible_v<T, std::add_rvalue_reference_t<U>>)
+		constexpr result(ok_value<U>&& ok)
+			noexcept(std::is_nothrow_convertible_v<std::add_rvalue_reference_t<U>, T>)
 			: m_ok(std::move(ok.value)), m_is_ok{ true }
 		{}
 
 		template<std::convertible_to<E> F>
-		constexpr result(err_value<F>&& err) noexcept(std::is_nothrow_constructible_v<E, std::add_rvalue_reference_t<F>>)
+		constexpr result(err_value<F>&& err)
+			noexcept(std::is_nothrow_convertible_v<std::add_rvalue_reference_t<F>, E>)
 			: m_err(std::move(err.value)), m_is_ok{ false }
 		{}
 
 		result(const result&) = delete;
 		result(result&&) noexcept = delete;
 
-		constexpr ~result() noexcept(std::conjunction_v<std::is_nothrow_destructible<T>, std::is_nothrow_destructible<E>>)
+		constexpr ~result()
+			noexcept(std::conjunction_v<std::is_nothrow_destructible<T>, std::is_nothrow_destructible<E>>)
 		{
 			if(m_is_ok)
 			{
@@ -132,8 +135,10 @@ namespace std2
 		}
 
 		template<std::convertible_to<T> U>
-			requires std::negation_v<std::is_void<T>>
-		[[nodiscard]] constexpr auto ok_or(U&& def) const& noexcept -> T
+			requires std::conjunction_v<std::negation<std::is_void<T>>, std::is_copy_constructible<T>>
+		[[nodiscard]] constexpr auto ok_or(U&& def) const&
+			noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<T>, std::is_nothrow_convertible<U&&, T>>)
+			-> T
 		{
 			return m_is_ok
 				? m_ok
@@ -141,8 +146,10 @@ namespace std2
 		}
 
 		template<std::convertible_to<T> U>
-			requires std::negation_v<std::is_void<T>>
-		[[nodiscard]] constexpr auto ok_or(U&& def) && noexcept -> T
+			requires std::conjunction_v<std::negation<std::is_void<T>>, std::is_move_constructible<T>>
+		[[nodiscard]] constexpr auto ok_or(U&& def) &&
+			noexcept(std::conjunction_v<std::is_nothrow_move_constructible<T>, std::is_nothrow_convertible<U&&, T>>)
+			-> T
 		{
 			return m_is_ok
 				? std::move(m_ok)
@@ -178,8 +185,10 @@ namespace std2
 		}
 
 		template<std::convertible_to<E> F>
-			requires std::negation_v<std::is_void<E>>
-		[[nodiscard]] constexpr auto err_or(F&& def) const& noexcept -> E
+			requires std::conjunction_v<std::negation<std::is_void<E>>, std::is_copy_constructible<E>>
+		[[nodiscard]] constexpr auto err_or(F&& def) const&
+			noexcept(std::conjunction_v<std::is_nothrow_copy_constructible<E>, std::is_nothrow_convertible<F&&, E>>)
+			-> E
 		{
 			return !m_is_ok
 				? m_err
@@ -187,8 +196,10 @@ namespace std2
 		}
 
 		template<std::convertible_to<E> F>
-			requires std::negation_v<std::is_void<E>>
-		[[nodiscard]] constexpr auto err_or(F&& def) && noexcept -> E
+			requires std::conjunction_v<std::negation<std::is_void<E>>, std::is_move_constructible<E>>
+		[[nodiscard]] constexpr auto err_or(F&& def) &&
+			noexcept(std::conjunction_v<std::is_nothrow_move_constructible<E>, std::is_nothrow_convertible<F&&, E>>)
+			-> E
 		{
 			return !m_is_ok
 				? std::move(m_err)
