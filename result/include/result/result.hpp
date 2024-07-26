@@ -58,6 +58,24 @@ namespace std2
 	template<typename T, typename E>
 	class result;
 
+	template<typename F, typename E, typename... Args>
+	struct is_invoke_result_result_with_err : std::bool_constant<std::conjunction_v<std::_Is_specialization<std::invoke_result_t<F, Args...>, result>, std::is_same<typename std::invoke_result_t<F, Args...>::err_type, E>>> {};
+
+	template<typename F, typename E, typename... Args>
+	inline constexpr bool is_invoke_result_result_with_err_v = is_invoke_result_result_with_err<F, E, Args...>::template value;
+
+	template<typename F, typename E, typename... Args>
+	concept invoke_result_result_with_err = is_invoke_result_result_with_err_v<F, E, Args...>;
+
+	template<typename F, typename T, typename... Args>
+	struct is_invoke_result_result_with_ok : std::bool_constant<std::conjunction_v<std::_Is_specialization<std::invoke_result_t<F, Args...>, result>, std::is_same<typename std::invoke_result_t<F, Args...>::ok_type, T>>> {};
+
+	template<typename F, typename T, typename... Args>
+	inline constexpr bool is_invoke_result_result_with_ok_v = is_invoke_result_result_with_ok<F, T, Args...>::template value;
+
+	template<typename F, typename T, typename... Args>
+	concept invoke_result_result_with_ok = is_invoke_result_result_with_ok_v<F, T, Args...>;
+
 	template<typename T, typename E>
 	class result
 	{
@@ -212,7 +230,7 @@ namespace std2
 		}
 
 		template<std::invocable<> F>
-			requires std::conjunction_v<std::is_void<T>, std::_Is_specialization<std::invoke_result_t<F>, result>, std::is_same<typename std::invoke_result_t<F>::err_type, E>>
+			requires std::conjunction_v<std::is_void<T>, is_invoke_result_result_with_err<F, E>>
 		[[nodiscard]] constexpr auto and_then(F&& func) &
 			noexcept(std::conjunction_v<std::is_nothrow_invocable<F>, std::is_nothrow_invocable<decltype(std2::err<std::add_lvalue_reference_t<E>>), result_storage<E>&>>)
 			-> std::invoke_result_t<F>
@@ -226,7 +244,7 @@ namespace std2
 		}
 
 		template<std::invocable<result_storage<T>&> F>
-			requires std::conjunction_v<std::negation<std::is_void<T>>, std::_Is_specialization<std::invoke_result_t<F, result_storage<T>&>, result>, std::is_same<typename std::invoke_result_t<F, result_storage<T>&>::err_type, E>>
+			requires std::conjunction_v<std::negation<std::is_void<T>>, is_invoke_result_result_with_err<F, E, result_storage<T>&>>
 		[[nodiscard]] constexpr auto and_then(F&& func) &
 			noexcept(std::conjunction_v<std::is_nothrow_invocable<F, result_storage<T>&>, std::is_nothrow_invocable<decltype(std2::err<std::add_lvalue_reference_t<E>>), result_storage<E>&>>)
 			-> std::invoke_result_t<F, result_storage<T>&>
@@ -240,7 +258,7 @@ namespace std2
 		}
 
 		template<std::invocable<> F>
-			requires std::conjunction_v<std::is_void<T>, std::_Is_specialization<std::invoke_result_t<F>, result>, std::is_same<typename std::invoke_result_t<F>::err_type, E>>
+			requires std::conjunction_v<std::is_void<T>, is_invoke_result_result_with_err<F, E>>
 		[[nodiscard]] constexpr auto and_then(F&& func) const&
 			noexcept(std::conjunction_v<std::is_nothrow_invocable<F>, std::is_nothrow_invocable<decltype(std2::err<std::add_lvalue_reference_t<const E>>), const result_storage<E>&>>)
 			-> std::invoke_result_t<F>
@@ -254,7 +272,7 @@ namespace std2
 		}
 
 		template<std::invocable<const result_storage<T>&> F>
-			requires std::conjunction_v<std::negation<std::is_void<T>>, std::_Is_specialization<std::invoke_result_t<F, const result_storage<T>&>, result>, std::is_same<typename std::invoke_result_t<F, const result_storage<T>&>::err_type, E>>
+			requires std::conjunction_v<std::negation<std::is_void<T>>, is_invoke_result_result_with_err<F, E, const result_storage<T>&>>
 		[[nodiscard]] constexpr auto and_then(F&& func) const&
 			noexcept(std::conjunction_v<std::is_nothrow_invocable<F, const result_storage<T>&>, std::is_nothrow_invocable<decltype(std2::err<std::add_lvalue_reference_t<const E>>), const result_storage<E>&>>)
 			-> std::invoke_result_t<F, const result_storage<T>&>
@@ -268,7 +286,7 @@ namespace std2
 		}
 
 		template<std::invocable<> F>
-			requires std::conjunction_v<std::is_void<T>, std::_Is_specialization<std::invoke_result_t<F>, result>, std::is_same<typename std::invoke_result_t<F>::err_type, E>>
+			requires std::conjunction_v<std::is_void<T>, is_invoke_result_result_with_err<F, E>>
 		[[nodiscard]] constexpr auto and_then(F&& func) &&
 			noexcept(std::conjunction_v<std::is_nothrow_invocable<F>, std::is_nothrow_invocable<decltype(std2::err<E>), result_storage<E>&&>>)
 			-> std::invoke_result_t<F>
@@ -278,11 +296,11 @@ namespace std2
 				return std::invoke(func);
 			}
 
-			return std2::err<E&&>(std::move(m_err));
+			return std2::err<E>(std::move(m_err));
 		}
 
 		template<std::invocable<result_storage<T>&&> F>
-			requires std::conjunction_v<std::negation<std::is_void<T>>, std::_Is_specialization<std::invoke_result_t<F, result_storage<T>&&>, result>, std::is_same<typename std::invoke_result_t<F, result_storage<T>&&>::err_type, E>>
+			requires std::conjunction_v<std::negation<std::is_void<T>>, is_invoke_result_result_with_err<F, E, result_storage<T>&&>>
 		[[nodiscard]] constexpr auto and_then(F&& func) &&
 			noexcept(std::conjunction_v<std::is_nothrow_invocable<F, result_storage<T>&&>, std::is_nothrow_invocable<decltype(std2::err<E>), result_storage<E>&&>>)
 			-> std::invoke_result_t<F, result_storage<T>&&>
@@ -292,13 +310,13 @@ namespace std2
 				return std::invoke(func, std::move(m_ok));
 			}
 
-			return std2::err<std::add_lvalue_reference_t<E>>(std::move(m_err));
+			return std2::err<E>(std::move(m_err));
 		}
 
 		template<std::invocable<> F>
-			requires std::conjunction_v<std::is_void<T>, std::_Is_specialization<std::invoke_result_t<F>, result>, std::is_same<typename std::invoke_result_t<F>::err_type, E>>
+			requires std::conjunction_v<std::is_void<T>, is_invoke_result_result_with_err<F, E>>
 		[[nodiscard]] constexpr auto and_then(F&& func) const&&
-			noexcept(std::conjunction_v<std::is_nothrow_invocable<F>, std::is_nothrow_invocable<decltype(std2::err<E>), const result_storage<E>&&>>)
+			noexcept(std::conjunction_v<std::is_nothrow_invocable<F>, std::is_nothrow_invocable<decltype(std2::err<const E>), const result_storage<E>&&>>)
 			-> std::invoke_result_t<F>
 		{
 			if(m_is_ok)
@@ -306,11 +324,11 @@ namespace std2
 				return std::invoke(func);
 			}
 
-			return std2::err<E&&>(std::move(m_err));
+			return std2::err<E>(std::move(m_err));
 		}
 
 		template<std::invocable<const result_storage<T>&&> F>
-			requires std::conjunction_v<std::negation<std::is_void<T>>, std::_Is_specialization<std::invoke_result_t<F, const result_storage<T>&&>, result>, std::is_same<typename std::invoke_result_t<F, const result_storage<T>&&>::err_type, E>>
+			requires std::conjunction_v<std::negation<std::is_void<T>>, is_invoke_result_result_with_err<F, E, const result_storage<T>&&>>
 		[[nodiscard]] constexpr auto and_then(F&& func) const&&
 			noexcept(std::conjunction_v<std::is_nothrow_invocable<F, const result_storage<T>&&>, std::is_nothrow_invocable<decltype(std2::err<const E>), const result_storage<E>&&>>)
 			-> std::invoke_result_t<F, const result_storage<T>&&>
@@ -320,7 +338,7 @@ namespace std2
 				return std::invoke(func, std::move(m_ok));
 			}
 
-			return std2::err<std::add_lvalue_reference_t<E>>(std::move(m_err));
+			return std2::err<E>(std::move(m_err));
 		}
 
 	private:
