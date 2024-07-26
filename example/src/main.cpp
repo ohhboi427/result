@@ -9,5 +9,5 @@ auto main() -> int
 				   {
 					   return value * 2.0f;
 				   })
-		.ok_or(10.0f);
+		.ok();
 }

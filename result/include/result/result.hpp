@@ -1,6 +1,7 @@
 #pragma once
 
 #include <concepts>
+#include <cstdlib>
 #include <format>
 #include <functional>
 #include <type_traits>
@@ -133,6 +134,11 @@ namespace std2
 			requires std::negation_v<std::is_void<T>>
 		[[nodiscard]] constexpr auto ok() & noexcept -> result_storage<T>&
 		{
+			if(!m_is_ok)
+			{
+				std::abort();
+			}
+
 			return m_ok;
 		}
 
@@ -140,6 +146,11 @@ namespace std2
 			requires std::negation_v<std::is_void<T>>
 		[[nodiscard]] constexpr auto ok() const& noexcept -> const result_storage<T>&
 		{
+			if(!m_is_ok)
+			{
+				std::abort();
+			}
+
 			return m_ok;
 		}
 
@@ -147,6 +158,11 @@ namespace std2
 			requires std::negation_v<std::is_void<T>>
 		[[nodiscard]] constexpr auto ok() && noexcept -> result_storage<T>&&
 		{
+			if(!m_is_ok)
+			{
+				std::abort();
+			}
+
 			return std::move(m_ok);
 		}
 
@@ -154,6 +170,11 @@ namespace std2
 			requires std::negation_v<std::is_void<T>>
 		[[nodiscard]] constexpr auto ok() const&& noexcept -> const result_storage<T>&&
 		{
+			if(!m_is_ok)
+			{
+				std::abort();
+			}
+
 			return std::move(m_ok);
 		}
 
@@ -183,6 +204,11 @@ namespace std2
 			requires std::negation_v<std::is_void<E>>
 		[[nodiscard]] constexpr auto err() & noexcept -> result_storage<E>&
 		{
+			if(m_is_ok)
+			{
+				std::abort();
+			}
+
 			return m_err;
 		}
 
@@ -190,6 +216,11 @@ namespace std2
 			requires std::negation_v<std::is_void<E>>
 		[[nodiscard]] constexpr auto err() const& noexcept -> const result_storage<E>&
 		{
+			if(m_is_ok)
+			{
+				std::abort();
+			}
+
 			return m_err;
 		}
 
@@ -197,6 +228,11 @@ namespace std2
 			requires std::negation_v<std::is_void<E>>
 		[[nodiscard]] constexpr auto err() && noexcept -> result_storage<E>&&
 		{
+			if(m_is_ok)
+			{
+				std::abort();
+			}
+
 			return std::move(m_err);
 		}
 
@@ -204,6 +240,11 @@ namespace std2
 			requires std::negation_v<std::is_void<E>>
 		[[nodiscard]] constexpr auto err() const&& noexcept -> const result_storage<E>&&
 		{
+			if(m_is_ok)
+			{
+				std::abort();
+			}
+
 			return std::move(m_err);
 		}
 
