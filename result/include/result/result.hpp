@@ -342,6 +342,118 @@ namespace std2
 		}
 
 		template<std::invocable<> F>
+			requires std::is_void_v<T>
+		[[nodiscard]] constexpr auto transform(F&& func) &
+			noexcept(std::conjunction_v<std::is_nothrow_invocable<F>, std::is_nothrow_invocable<decltype(std2::err<std::add_lvalue_reference_t<E>>), result_storage<E>&>, std::is_nothrow_invocable<decltype(std2::ok<std::invoke_result_t<F>>)>>)
+			-> result<std::invoke_result_t<F>, E>
+		{
+			if(m_is_ok)
+			{
+				return std2::ok(std::invoke(func));
+			}
+
+			return std2::err<std::add_lvalue_reference_t<E>>(m_err);
+		}
+
+		template<std::invocable<result_storage<T>&> F>
+			requires std::negation_v<std::is_void<T>>
+		[[nodiscard]] constexpr auto transform(F&& func) &
+			noexcept(std::conjunction_v<std::is_nothrow_invocable<F, result_storage<T>&>, std::is_nothrow_invocable<decltype(std2::err<std::add_lvalue_reference_t<E>>), result_storage<E>&>, std::is_nothrow_invocable<decltype(std2::ok<std::invoke_result_t<F, result_storage<T>&>>), std::invoke_result_t<F, result_storage<T>&>>>)
+			-> result<std::invoke_result_t<F, result_storage<T>&>, E>
+		{
+			if(m_is_ok)
+			{
+				return std2::ok(std::invoke(func, m_ok));
+			}
+
+			return std2::err<std::add_lvalue_reference_t<E>>(m_err);
+		}
+
+		template<std::invocable<> F>
+			requires std::is_void_v<T>
+		[[nodiscard]] constexpr auto transform(F&& func) const&
+			noexcept(std::conjunction_v<std::is_nothrow_invocable<F>, std::is_nothrow_invocable<decltype(std2::err<std::add_lvalue_reference_t<const E>>), const result_storage<E>&>, std::is_nothrow_invocable<decltype(std2::ok<std::invoke_result_t<F>>)>>)
+			-> result<std::invoke_result_t<F>, E>
+		{
+			if(m_is_ok)
+			{
+				return std2::ok(std::invoke(func));
+			}
+
+			return std2::err<std::add_lvalue_reference_t<const E>>(m_err);
+		}
+
+		template<std::invocable<const result_storage<T>&> F>
+			requires std::negation_v<std::is_void<T>>
+		[[nodiscard]] constexpr auto transform(F&& func) const&
+			noexcept(std::conjunction_v<std::is_nothrow_invocable<F, const result_storage<T>&>, std::is_nothrow_invocable<decltype(std2::err<std::add_lvalue_reference_t<const E>>), const result_storage<E>&>, std::is_nothrow_invocable<decltype(std2::ok<std::invoke_result_t<F, const result_storage<T>&>>), std::invoke_result_t<F, const result_storage<T>&>>>)
+			-> result<std::invoke_result_t<F, const result_storage<T>&>, E>
+		{
+			if(m_is_ok)
+			{
+				return std2::ok(std::invoke(func, m_ok));
+			}
+
+			return std2::err<std::add_lvalue_reference_t<const E>>(m_err);
+		}
+
+		template<std::invocable<> F>
+			requires std::is_void_v<T>
+		[[nodiscard]] constexpr auto transform(F&& func) &&
+			noexcept(std::conjunction_v<std::is_nothrow_invocable<F>, std::is_nothrow_invocable<decltype(std2::err<E>), result_storage<E>&&>, std::is_nothrow_invocable<decltype(std2::ok<std::invoke_result_t<F>>)>>)
+			-> result<std::invoke_result_t<F>, E>
+		{
+			if(m_is_ok)
+			{
+				return std2::ok(std::invoke(func));
+			}
+
+			return std2::err<E>(std::move(m_err));
+		}
+
+		template<std::invocable<result_storage<T>&&> F>
+			requires std::negation_v<std::is_void<T>>
+		[[nodiscard]] constexpr auto transform(F&& func) &&
+			noexcept(std::conjunction_v<std::is_nothrow_invocable<F, result_storage<T>&&>, std::is_nothrow_invocable<decltype(std2::err<E>), result_storage<E>&&>, std::is_nothrow_invocable<decltype(std2::ok<std::invoke_result_t<F, result_storage<T>&&>>), std::invoke_result_t<F, result_storage<T>&&>>>)
+			-> result<std::invoke_result_t<F, result_storage<T>&&>, E>
+		{
+			if(m_is_ok)
+			{
+				return std2::ok(std::invoke(func, std::move(m_ok)));
+			}
+
+			return std2::err<E>(std::move(m_err));
+		}
+
+		template<std::invocable<> F>
+			requires std::is_void_v<T>
+		[[nodiscard]] constexpr auto transform(F&& func) const&&
+			noexcept(std::conjunction_v<std::is_nothrow_invocable<F>, std::is_nothrow_invocable<decltype(std2::err<const E>), const result_storage<E>&&>, std::is_nothrow_invocable<decltype(std2::ok<std::invoke_result_t<F>>)>>)
+			-> result<std::invoke_result_t<F>, E>
+		{
+			if(m_is_ok)
+			{
+				return std2::ok(std::invoke(func));
+			}
+
+			return std2::err<const E>(std::move(m_err));
+		}
+
+		template<std::invocable<const result_storage<T>&&> F>
+			requires std::negation_v<std::is_void<T>>
+		[[nodiscard]] constexpr auto transform(F&& func) const&&
+			noexcept(std::conjunction_v<std::is_nothrow_invocable<F, const result_storage<T>&&>, std::is_nothrow_invocable<decltype(std2::err<const E>), const result_storage<E>&&>, std::is_nothrow_invocable<decltype(std2::ok<std::invoke_result_t<F, const result_storage<T>&&>>), std::invoke_result_t<F, const result_storage<T>&&>>>)
+			-> result<std::invoke_result_t<F, const result_storage<T>&&>, E>
+		{
+			if(m_is_ok)
+			{
+				return std2::ok(std::invoke(func, std::move(m_ok)));
+			}
+
+			return std2::err<const E>(std::move(m_err));
+		}
+
+		template<std::invocable<> F>
 			requires std::conjunction_v<std::is_void<E>, is_invoke_result_result_with_ok<F, T>>
 		[[nodiscard]] constexpr auto or_else(F&& func) &
 			noexcept(std::conjunction_v<std::is_nothrow_invocable<F>, std::is_nothrow_invocable<decltype(std2::ok<std::add_lvalue_reference_t<T>>), result_storage<T>&>>)
@@ -453,118 +565,6 @@ namespace std2
 			return std2::ok<const T>>(std::move(m_ok));
 		}
 
-		template<std::invocable<> F>
-			requires std::is_void_v<T>
-		[[nodiscard]] constexpr auto transform(F&& func) &
-			noexcept(std::conjunction_v<std::is_nothrow_invocable<F>, std::is_nothrow_invocable<decltype(std2::err<std::add_lvalue_reference_t<E>>), result_storage<E>&>, std::is_nothrow_invocable<decltype(std2::ok<std::invoke_result_t<F>>)>>)
-			-> result<std::invoke_result_t<F>, E>
-		{
-			if(m_is_ok)
-			{
-				return std2::ok(std::invoke(func));
-			}
-
-			return std2::err<std::add_lvalue_reference_t<E>>(m_err);
-		}
-
-		template<std::invocable<result_storage<T>&> F>
-			requires std::negation_v<std::is_void<T>>
-		[[nodiscard]] constexpr auto transform(F&& func) &
-			noexcept(std::conjunction_v<std::is_nothrow_invocable<F, result_storage<T>&>, std::is_nothrow_invocable<decltype(std2::err<std::add_lvalue_reference_t<E>>), result_storage<E>&>, std::is_nothrow_invocable<decltype(std2::ok<std::invoke_result_t<F, result_storage<T>&>>), std::invoke_result_t<F, result_storage<T>&>>>)
-			-> result<std::invoke_result_t<F, result_storage<T>&>, E>
-		{
-			if(m_is_ok)
-			{
-				return std2::ok(std::invoke(func, m_ok));
-			}
-
-			return std2::err<std::add_lvalue_reference_t<E>>(m_err);
-		}
-
-		template<std::invocable<> F>
-			requires std::is_void_v<T>
-		[[nodiscard]] constexpr auto transform(F&& func) const&
-			noexcept(std::conjunction_v<std::is_nothrow_invocable<F>, std::is_nothrow_invocable<decltype(std2::err<std::add_lvalue_reference_t<const E>>), const result_storage<E>&>, std::is_nothrow_invocable<decltype(std2::ok<std::invoke_result_t<F>>)>>)
-			-> result<std::invoke_result_t<F>, E>
-		{
-			if(m_is_ok)
-			{
-				return std2::ok(std::invoke(func));
-			}
-
-			return std2::err<std::add_lvalue_reference_t<const E>>(m_err);
-		}
-
-		template<std::invocable<const result_storage<T>&> F>
-			requires std::negation_v<std::is_void<T>>
-		[[nodiscard]] constexpr auto transform(F&& func) const&
-			noexcept(std::conjunction_v<std::is_nothrow_invocable<F, const result_storage<T>&>, std::is_nothrow_invocable<decltype(std2::err<std::add_lvalue_reference_t<const E>>), const result_storage<E>&>, std::is_nothrow_invocable<decltype(std2::ok<std::invoke_result_t<F, const result_storage<T>&>>), std::invoke_result_t<F,const  result_storage<T>&>>>)
-			-> result<std::invoke_result_t<F, const result_storage<T>&>, E>
-		{
-			if(m_is_ok)
-			{
-				return std2::ok(std::invoke(func, m_ok));
-			}
-
-			return std2::err<std::add_lvalue_reference_t<const E>>(m_err);
-		}
-
-		template<std::invocable<> F>
-			requires std::is_void_v<T>
-		[[nodiscard]] constexpr auto transform(F&& func) &&
-			noexcept(std::conjunction_v<std::is_nothrow_invocable<F>, std::is_nothrow_invocable<decltype(std2::err<E>), result_storage<E>&&>, std::is_nothrow_invocable<decltype(std2::ok<std::invoke_result_t<F>>)>>)
-			-> result<std::invoke_result_t<F>, E>
-		{
-			if(m_is_ok)
-			{
-				return std2::ok(std::invoke(func));
-			}
-
-			return std2::err<E>(std::move(m_err));
-		}
-
-		template<std::invocable<result_storage<T>&&> F>
-			requires std::negation_v<std::is_void<T>>
-		[[nodiscard]] constexpr auto transform(F&& func) &&
-			noexcept(std::conjunction_v<std::is_nothrow_invocable<F, result_storage<T>&&>, std::is_nothrow_invocable<decltype(std2::err<E>), result_storage<E>&&>, std::is_nothrow_invocable<decltype(std2::ok<std::invoke_result_t<F, result_storage<T>&&>>), std::invoke_result_t<F, result_storage<T>&&>>>)
-			-> result<std::invoke_result_t<F, result_storage<T>&&>, E>
-		{
-			if(m_is_ok)
-			{
-				return std2::ok(std::invoke(func, std::move(m_ok)));
-			}
-
-			return std2::err<E>(std::move(m_err));
-		}
-
-		template<std::invocable<> F>
-			requires std::is_void_v<T>
-		[[nodiscard]] constexpr auto transform(F&& func) const&&
-			noexcept(std::conjunction_v<std::is_nothrow_invocable<F>, std::is_nothrow_invocable<decltype(std2::err<const E>), const result_storage<E>&&>, std::is_nothrow_invocable<decltype(std2::ok<std::invoke_result_t<F>>)>>)
-			-> result<std::invoke_result_t<F>, E>
-		{
-			if(m_is_ok)
-			{
-				return std2::ok(std::invoke(func));
-			}
-
-			return std2::err<const E>(std::move(m_err));
-		}
-
-		template<std::invocable<const result_storage<T>&&> F>
-			requires std::negation_v<std::is_void<T>>
-		[[nodiscard]] constexpr auto transform(F&& func) const&&
-			noexcept(std::conjunction_v<std::is_nothrow_invocable<F, const result_storage<T>&&>, std::is_nothrow_invocable<decltype(std2::err<const E>), const result_storage<E>&&>, std::is_nothrow_invocable<decltype(std2::ok<std::invoke_result_t<F, const result_storage<T>&&>>), std::invoke_result_t<F, const result_storage<T>&&>>>)
-			-> result<std::invoke_result_t<F, const result_storage<T>&&>, E>
-		{
-			if(m_is_ok)
-			{
-				return std2::ok(std::invoke(func, std::move(m_ok)));
-			}
-
-			return std2::err<const E>(std::move(m_err));
-		}
-
 	private:
 		union
 		{
@@ -597,7 +597,7 @@ namespace std
 	struct formatter<std2::result<T, E>, CharT>
 	{
 		template<typename FormatContext>
-		auto format(const std2::result<T, E>& result, FormatContext& context) const noexcept -> typename FormatContext::iterator
+		auto format(const std2::result<T, E>& result, FormatContext& context) const -> typename FormatContext::iterator
 		{
 			if(result.is_ok())
 			{
