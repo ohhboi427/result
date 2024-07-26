@@ -20,7 +20,8 @@ project "result"
 		targetname "%{prj.name}d"
 		optimize "off"
 		symbols "on"
+		defines { "STD2_DEBUG" }
 
-	filter "configurations:Release"
+		filter "configurations:Release"
 		optimize "on"
 		symbols "off"

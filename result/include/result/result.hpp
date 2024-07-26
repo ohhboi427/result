@@ -134,11 +134,12 @@ namespace std2
 			requires std::negation_v<std::is_void<T>>
 		[[nodiscard]] constexpr auto ok() & noexcept -> result_storage<T>&
 		{
+#if defined STD2_DEBUG || defined STD2_RESULT_FORCE_CHECK
 			if(!m_is_ok)
 			{
 				std::abort();
 			}
-
+#endif // !defined STD2_DEBUG || defined STD2_RESULT_FORCE_CHECK
 			return m_ok;
 		}
 
@@ -146,10 +147,12 @@ namespace std2
 			requires std::negation_v<std::is_void<T>>
 		[[nodiscard]] constexpr auto ok() const& noexcept -> const result_storage<T>&
 		{
+#if defined STD2_DEBUG || defined STD2_RESULT_FORCE_CHECK
 			if(!m_is_ok)
 			{
 				std::abort();
 			}
+#endif // !defined STD2_DEBUG || defined STD2_RESULT_FORCE_CHECK
 
 			return m_ok;
 		}
@@ -158,10 +161,12 @@ namespace std2
 			requires std::negation_v<std::is_void<T>>
 		[[nodiscard]] constexpr auto ok() && noexcept -> result_storage<T>&&
 		{
+#if defined STD2_DEBUG || defined STD2_RESULT_FORCE_CHECK
 			if(!m_is_ok)
 			{
 				std::abort();
 			}
+#endif // !defined STD2_DEBUG || defined STD2_RESULT_FORCE_CHECK
 
 			return std::move(m_ok);
 		}
@@ -170,10 +175,12 @@ namespace std2
 			requires std::negation_v<std::is_void<T>>
 		[[nodiscard]] constexpr auto ok() const&& noexcept -> const result_storage<T>&&
 		{
+#if defined STD2_DEBUG || defined STD2_RESULT_FORCE_CHECK
 			if(!m_is_ok)
 			{
 				std::abort();
 			}
+#endif // !defined STD2_DEBUG || defined STD2_RESULT_FORCE_CHECK
 
 			return std::move(m_ok);
 		}
@@ -204,10 +211,12 @@ namespace std2
 			requires std::negation_v<std::is_void<E>>
 		[[nodiscard]] constexpr auto err() & noexcept -> result_storage<E>&
 		{
+#if defined STD2_DEBUG || defined STD2_RESULT_FORCE_CHECK
 			if(m_is_ok)
 			{
 				std::abort();
 			}
+#endif // !defined STD2_DEBUG || defined STD2_RESULT_FORCE_CHECK
 
 			return m_err;
 		}
@@ -216,10 +225,12 @@ namespace std2
 			requires std::negation_v<std::is_void<E>>
 		[[nodiscard]] constexpr auto err() const& noexcept -> const result_storage<E>&
 		{
+#if defined STD2_DEBUG || defined STD2_RESULT_FORCE_CHECK
 			if(m_is_ok)
 			{
 				std::abort();
 			}
+#endif // !defined STD2_DEBUG || defined STD2_RESULT_FORCE_CHECK
 
 			return m_err;
 		}
@@ -228,10 +239,12 @@ namespace std2
 			requires std::negation_v<std::is_void<E>>
 		[[nodiscard]] constexpr auto err() && noexcept -> result_storage<E>&&
 		{
+#if defined STD2_DEBUG || defined STD2_RESULT_FORCE_CHECK
 			if(m_is_ok)
 			{
 				std::abort();
 			}
+#endif // !defined STD2_DEBUG || defined STD2_RESULT_FORCE_CHECK
 
 			return std::move(m_err);
 		}
@@ -240,10 +253,12 @@ namespace std2
 			requires std::negation_v<std::is_void<E>>
 		[[nodiscard]] constexpr auto err() const&& noexcept -> const result_storage<E>&&
 		{
+#if defined STD2_DEBUG || defined STD2_RESULT_FORCE_CHECK
 			if(m_is_ok)
 			{
 				std::abort();
 			}
+#endif // !defined STD2_DEBUG || defined STD2_RESULT_FORCE_CHECK
 
 			return std::move(m_err);
 		}
