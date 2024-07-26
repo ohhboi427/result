@@ -1,11 +1,13 @@
 #include <result/result.hpp>
 
-#include <format>
-#include <iostream>
-
 auto main() -> int
 {
-	std2::result<int, int> result = std2::ok(10);
+	std2::result<int, void> result = std2::err();
 
-	std::cout << std::format("{}\n", result);
+	auto i = result
+		.and_then([] (int& value) -> std2::result<float, void>
+				  {
+					  return std2::ok(10.0f);
+				  })
+		.ok_or(0);
 }
