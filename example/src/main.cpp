@@ -5,9 +5,9 @@ auto main() -> int
 	std2::result<int, void> result = std2::err();
 
 	auto i = result
-		.and_then([] (int& value) -> std2::result<float, void>
+		.or_else([] () -> std2::result<int, char>
 				  {
-					  return std2::ok(10.0f);
+					  return std2::ok(10);
 				  })
 		.ok_or(0);
 }
